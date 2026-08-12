@@ -195,10 +195,6 @@ export default function NeuralBrain3D() {
   return (
     <div className="w-full h-[400px] md:h-[550px] relative flex items-center justify-center">
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-slate-900/80 border border-cyan-500/30 backdrop-blur-md text-[11px] text-cyan-300 flex items-center gap-2 pointer-events-none">
-        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-        Interactive AI Neural Brain • Move Cursor
-      </div>
     </div>
   );
 }

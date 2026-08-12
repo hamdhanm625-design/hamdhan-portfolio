@@ -106,10 +106,6 @@ export default function Skills() {
         
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-purple-500/30 text-xs font-mono text-purple-400">
-            <Cpu className="w-3.5 h-3.5" />
-            <span>INTERACTIVE TECH MATRIX</span>
-          </div>
           <h2 className="text-3xl sm:text-5xl font-display font-bold text-white tracking-tight">
             Skills & <span className="text-gradient-purple">Expertise</span>
           </h2>

@@ -52,10 +52,6 @@ export default function PersonalSide() {
             {/* Right Column: Subtle Kinetic 3D Basketball Canvas */}
             <div className="lg:col-span-5 relative flex items-center justify-center">
               <Basketball3D />
-              
-              <div className="absolute bottom-2 px-3 py-1 rounded-full bg-slate-900/90 border border-orange-500/30 text-[11px] font-mono text-orange-300 backdrop-blur-md">
-                Interactive Kinetic Sphere • Move Cursor
-              </div>
             </div>
 
           </div>

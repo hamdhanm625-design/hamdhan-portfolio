@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe, Sparkles, Move3d } from 'lucide-react';
+import { Sparkles, Move3d } from 'lucide-react';
 import DigitalWorld3D from '../canvases/DigitalWorld3D';
 
 export default function DigitalWorld() {
@@ -12,10 +12,6 @@ export default function DigitalWorld() {
         
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-cyan-500/30 text-xs font-mono text-cyan-400">
-            <Globe className="w-3.5 h-3.5" />
-            <span>INTERACTIVE 3D ENVIRONMENT</span>
-          </div>
           <h2 className="text-3xl sm:text-5xl font-display font-bold text-white tracking-tight">
             Explore My <span className="text-gradient">Digital World</span>
           </h2>

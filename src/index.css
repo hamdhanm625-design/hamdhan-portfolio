@@ -93,3 +93,46 @@
     cursor: none !important;
   }
 }
+
+/* Image Unblur & High-Definition Clarity Filter */
+.unblur-image {
+  filter: contrast(1.08) brightness(1.03) saturate(1.06);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.unblur-image-modal {
+  filter: contrast(1.06) brightness(1.02) saturate(1.05);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Cyber Blinking Border & Flash Effects */
+@keyframes cyber-blink-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.7), inset 0 0 10px rgba(0, 242, 254, 0.4);
+    border-color: rgba(0, 242, 254, 1);
+  }
+  50% {
+    box-shadow: 0 0 5px rgba(0, 242, 254, 0.2), inset 0 0 3px rgba(0, 242, 254, 0.1);
+    border-color: rgba(0, 242, 254, 0.3);
+  }
+}
+
+@keyframes fast-blink {
+  0%, 100% { opacity: 1; filter: brightness(1.05); }
+  25% { opacity: 0.15; filter: brightness(1.8) contrast(1.4); }
+  50% { opacity: 0.9; filter: brightness(1.2); }
+  75% { opacity: 0.2; filter: brightness(1.6); }
+}
+
+.animate-cyber-pulse {
+  animation: cyber-blink-pulse 1.8s infinite ease-in-out;
+}
+
+.animate-fast-blink {
+  animation: fast-blink 0.35s ease-in-out;
+}
+
