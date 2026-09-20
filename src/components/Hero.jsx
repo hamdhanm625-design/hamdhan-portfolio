@@ -45,7 +45,7 @@ export default function Hero() {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
               <span>● Currently learning & building</span>
               <span className="text-slate-500">|</span>
-              <span className="text-slate-400">PSNA CET '25</span>
+              <span className="text-slate-400">PSNACET '29</span>
             </div>
 
             {/* Main Name Heading with Blinking Cyber Photo Frame */}
@@ -73,11 +73,6 @@ export default function Hero() {
                     }`}
                   />
 
-                  {/* Blinking Live Indicator Badge */}
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/90 border border-cyan-400/60 backdrop-blur-md text-[10px] font-mono text-cyan-300 flex items-center gap-1 shadow-md pointer-events-none">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-                    <span>HD LIVE</span>
-                  </div>
 
                   {/* Click to expand overlay on hover */}
                   <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-cyan-300 gap-1">

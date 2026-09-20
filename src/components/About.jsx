@@ -51,7 +51,7 @@ export default function About() {
             About <span className="text-gradient">Me</span>
           </h2>
           <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-            "I’m Mohamed Hamdhan, a first-year B.Tech Artificial Intelligence & Data Science student at PSNA College of Engineering and Technology. I enjoy exploring technology, learning programming concepts, experimenting with projects, and continuously improving my technical skills."
+            "I’m Mohamed Hamdhan, a second-year B.Tech Artificial Intelligence & Data Science student at PSNA College of Engineering and Technology. I enjoy exploring technology, learning programming concepts, experimenting with projects, and continuously improving my technical skills."
           </p>
         </div>
 
@@ -101,7 +101,7 @@ export default function About() {
         {/* Summary Highlight Strip */}
         <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-cyan-500/20 flex flex-wrap items-center justify-around gap-6 text-center">
           <div>
-            <div className="text-2xl font-display font-bold text-cyan-400">1st Year</div>
+            <div className="text-2xl font-display font-bold text-cyan-400">2nd Year</div>
             <div className="text-xs text-slate-400 font-mono">Current Academic Level</div>
           </div>
           <div className="w-px h-8 bg-slate-800 hidden sm:block" />

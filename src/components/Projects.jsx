@@ -24,7 +24,7 @@ export default function Projects() {
         'Performance-focused architecture & smooth animations',
         'Live production deployment on Vercel',
       ],
-      github: 'https://github.com',
+      github: 'https://github.com/hamdhanm625-design',
       demo: 'https://travellersinntours.vercel.app/',
     },
   ];

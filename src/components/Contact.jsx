@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Send, Copy, Check, Sparkles, MessageSquare } from 'lucide-react';
-import { GithubIcon, LinkedinIcon, InstagramIcon } from './SocialIcons';
+import { Mail, Send, Copy, Check, Sparkles, MessageSquare, ExternalLink } from 'lucide-react';
+import { GithubIcon, LinkedinIcon, InstagramIcon, WhatsappIcon } from './SocialIcons';
 import confetti from 'canvas-confetti';
 import { playClickSound, playSuccessSound, playHoverSound } from './SoundEngine';
 
@@ -8,8 +8,11 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [copied, setCopied] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [sentLinks, setSentLinks] = useState({ whatsapp: '', mailto: '' });
 
-  const emailAddress = 'hamdhan.dev@example.com';
+  const emailAddress = 'hamdhanm625@gmail.com';
+  const phoneNumber = '+91 6379124824';
+  const whatsappNumber = '916379124824';
 
   const handleCopyEmail = () => {
     playClickSound();
@@ -21,7 +24,37 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     playSuccessSound();
-    
+
+    const formattedWhatsAppText = encodeURIComponent(
+      `*New Portfolio Message*\n\n` +
+      `*Name:* ${formData.name}\n` +
+      `*Email:* ${formData.email}\n` +
+      `*Subject:* ${formData.subject}\n\n` +
+      `*Message:*\n${formData.message}`
+    );
+
+    const formattedEmailSubject = encodeURIComponent(`[Portfolio Inquiry] ${formData.subject}`);
+    const formattedEmailBody = encodeURIComponent(
+      `Hello Mohamed Hamdhan,\n\nYou have received a new message from your portfolio website:\n\n` +
+      `Name: ${formData.name}\n` +
+      `Email: ${formData.email}\n` +
+      `Subject: ${formData.subject}\n\n` +
+      `Message:\n${formData.message}\n`
+    );
+
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${formattedWhatsAppText}`;
+    const mailtoUrl = `mailto:${emailAddress}?subject=${formattedEmailSubject}&body=${formattedEmailBody}`;
+
+    setSentLinks({ whatsapp: whatsappUrl, mailto: mailtoUrl });
+
+    // Open WhatsApp pre-filled window
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+    // Trigger mailto link after slight delay
+    setTimeout(() => {
+      window.location.href = mailtoUrl;
+    }, 400);
+
     // Trigger celebration confetti
     confetti({
       particleCount: 80,
@@ -31,10 +64,6 @@ export default function Contact() {
     });
 
     setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 4000);
   };
 
   return (
@@ -102,7 +131,7 @@ export default function Contact() {
 
               <div className="grid grid-cols-2 gap-3">
                 <a
-                  href="https://linkedin.com"
+                  href="https://www.linkedin.com/in/mohamed-hamdhan-512434311"
                   target="_blank"
                   rel="noreferrer"
                   onClick={playClickSound}
@@ -114,7 +143,7 @@ export default function Contact() {
                 </a>
 
                 <a
-                  href="https://github.com"
+                  href="https://github.com/hamdhanm625-design"
                   target="_blank"
                   rel="noreferrer"
                   onClick={playClickSound}
@@ -126,7 +155,7 @@ export default function Contact() {
                 </a>
 
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/therealhamdhan?stkn=ZHJ4N3NlamlsZGc5"
                   target="_blank"
                   rel="noreferrer"
                   onClick={playClickSound}
@@ -141,10 +170,10 @@ export default function Contact() {
                   href={`mailto:${emailAddress}`}
                   onClick={playClickSound}
                   onMouseEnter={playHoverSound}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 text-xs font-medium text-slate-300 hover:text-emerald-300 transition"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 text-xs font-medium text-slate-300 hover:text-cyan-300 transition"
                 >
-                  <Mail className="w-4 h-4 text-emerald-400" />
-                  <span>Send Direct Email</span>
+                  <Mail className="w-4 h-4 text-cyan-400" />
+                  <span>Direct Email</span>
                 </a>
               </div>
             </div>
@@ -174,11 +203,47 @@ export default function Contact() {
                     <Check className="w-8 h-8" />
                   </div>
                   <h3 className="text-2xl font-display font-bold text-white">
-                    Message Transmitted Successfully!
+                    Message Transmitted!
                   </h3>
-                  <p className="text-slate-300 text-sm max-w-md">
-                    Thank you for reaching out to Mohamed Hamdhan. I will review your message and reply promptly.
+                  <p className="text-slate-300 text-sm max-w-md leading-relaxed">
+                    Your message details have been formatted and dispatched to <strong className="text-emerald-400">WhatsApp</strong> and <strong className="text-cyan-400">Email</strong> ({emailAddress}).
                   </p>
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full max-w-sm">
+                    {sentLinks.whatsapp && (
+                      <a
+                        href={sentLinks.whatsapp}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={playClickSound}
+                        className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                      >
+                        <WhatsappIcon className="w-4 h-4" />
+                        <span>Open WhatsApp</span>
+                      </a>
+                    )}
+                    {sentLinks.mailto && (
+                      <a
+                        href={sentLinks.mailto}
+                        onClick={playClickSound}
+                        className="flex-1 py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                      >
+                        <Mail className="w-4 h-4" />
+                        <span>Send Email</span>
+                      </a>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      setSubmitted(false);
+                      setFormData({ name: '', email: '', subject: '', message: '' });
+                    }}
+                    className="text-xs text-slate-400 hover:text-cyan-300 font-mono underline pt-2 transition"
+                  >
+                    Send Another Message
+                  </button>
                 </div>
               )}
 
