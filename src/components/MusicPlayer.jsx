@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Sparkles, Music } from 'lucide-react';
 
 export default function MusicPlayer({ soundOn, setSoundOn }) {
   const [playerMode, setPlayerMode] = useState('youtube'); // 'youtube' | 'html5' | 'ambient'
   const [ytReady, setYtReady] = useState(false);
+  const [isActuallyPlaying, setIsActuallyPlaying] = useState(false);
+  const [needsGesture, setNeedsGesture] = useState(false);
 
   const ytPlayerRef = useRef(null);
   const html5AudioRef = useRef(null);
@@ -10,7 +13,6 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
   const audioCtxRef = useRef(null);
   const ambientIntervalRef = useRef(null);
   const ambientGainRef = useRef(null);
-  const hasStartedRef = useRef(false);
 
   const YT_VIDEO_ID = 'hx96N6BVoOY'; // Justin Bieber - Flatline
 
@@ -26,7 +28,14 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
         html5AudioRef.current = audio;
         setPlayerMode('html5');
         if (soundOn) {
-          audio.play().catch(() => {});
+          audio.play()
+            .then(() => {
+              setIsActuallyPlaying(true);
+              setNeedsGesture(false);
+            })
+            .catch(() => {
+              setNeedsGesture(true);
+            });
         }
       };
 
@@ -37,7 +46,7 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
     testLocalAudio('/flatline.mp3');
   }, []);
 
-  // 2. Synthesized Cyber Ambient Engine (Fallback if YouTube blocked)
+  // 2. Synthesized Cyber Ambient Engine (Bulletproof offline / blocked fallback)
   const initAmbientEngine = () => {
     if (audioCtxRef.current) return audioCtxRef.current;
     try {
@@ -60,7 +69,6 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
     if (!ctx) return;
     if (ctx.state === 'suspended') ctx.resume();
 
-    // Smooth cyber-ambient chord progression: Dm7 -> Bbmaj7 -> Fmaj7 -> C
     const chords = [
       [146.83, 220.00, 261.63, 349.23], // Dm7
       [116.54, 174.61, 233.08, 293.66], // Bbmaj7
@@ -113,7 +121,7 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
     }
   };
 
-  // 3. YouTube IFrame API Setup with Autoplay
+  // 3. YouTube IFrame API Setup with Instant Buffer & Autoplay
   useEffect(() => {
     if (playerMode === 'html5') return;
 
@@ -128,7 +136,7 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
         ytPlayerRef.current = new window.YT.Player('yt-bg-player-target', {
           videoId: YT_VIDEO_ID,
           playerVars: {
-            autoplay: 1, // Autoplay on load
+            autoplay: 1,
             controls: 0,
             disablekb: 1,
             enablejsapi: 1,
@@ -148,20 +156,42 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
                 event.target.setVolume(60);
               } catch (e) {}
 
-              // Start playing automatically if soundOn is true
               if (soundOn) {
+                // Try unmuted play first
                 try {
+                  event.target.unMute();
                   event.target.playVideo();
                 } catch (e) {}
+
+                // Check after 700ms if Chrome allowed unmuted autoplay
+                setTimeout(() => {
+                  if (!isSubscribed) return;
+                  try {
+                    const state = event.target.getPlayerState();
+                    // State 1 = PLAYING, State 3 = BUFFERING
+                    if (state === 1 || state === 3) {
+                      setIsActuallyPlaying(true);
+                      setNeedsGesture(false);
+                    } else {
+                      // Browser policy blocked unmuted autoplay:
+                      // Start muted buffer so it's pre-loaded, and prompt for 1 click to unmute
+                      console.log('[MusicPlayer] Browser autoplay blocked unmuted audio on load. Awaiting gesture.');
+                      setNeedsGesture(true);
+                      event.target.mute();
+                      event.target.playVideo();
+                    }
+                  } catch (err) {
+                    setNeedsGesture(true);
+                  }
+                }, 700);
               }
             },
             onStateChange: (event) => {
               if (!isSubscribed) return;
-              if (event.data === 1) {
-                hasStartedRef.current = true;
-              }
-              // 0 = ended -> loop
-              if (event.data === 0) {
+              if (event.data === 1) { // Playing
+                setIsActuallyPlaying(true);
+                setNeedsGesture(false);
+              } else if (event.data === 0) { // Loop
                 event.target.playVideo();
               }
             },
@@ -207,58 +237,57 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
     };
   }, [playerMode]);
 
-  // 4. Synchronize Playback with `soundOn` & Handle Browser Autoplay Policy
+  // 4. Global First Gesture Listener (unlocks audio the instant visitor clicks, touches, or taps anywhere)
   useEffect(() => {
-    const playCurrentAudio = () => {
+    if (!soundOn) {
+      setNeedsGesture(false);
+      return;
+    }
+
+    const unlockAndPlay = () => {
       if (!soundOn) return;
 
-      if (playerMode === 'html5' && html5AudioRef.current) {
-        html5AudioRef.current.play().catch(() => {});
-      } else if (playerMode === 'ambient') {
-        startAmbientLoop();
-      } else if (ytPlayerRef.current && typeof ytPlayerRef.current.playVideo === 'function') {
+      console.log('[MusicPlayer] Gesture detected. Unmuting & starting playback.');
+
+      if (ytPlayerRef.current) {
         try {
-          ytPlayerRef.current.playVideo();
-        } catch (err) {
-          setPlayerMode('ambient');
-          startAmbientLoop();
-        }
-      } else if (ytReady && ytPlayerRef.current) {
-        try {
+          ytPlayerRef.current.unMute();
+          ytPlayerRef.current.setVolume(60);
           ytPlayerRef.current.playVideo();
         } catch (e) {}
       }
+
+      if (playerMode === 'html5' && html5AudioRef.current) {
+        html5AudioRef.current.play().catch(() => {});
+      }
+
+      if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume().catch(() => {});
+      }
+
+      setNeedsGesture(false);
     };
 
-    if (soundOn) {
-      // 1. Attempt immediate autoplay
-      playCurrentAudio();
+    // Attach to pointerdown (fires before click for instant response), click, touchstart, keydown
+    window.addEventListener('pointerdown', unlockAndPlay, { passive: true });
+    window.addEventListener('click', unlockAndPlay, { passive: true });
+    window.addEventListener('touchstart', unlockAndPlay, { passive: true });
+    window.addEventListener('keydown', unlockAndPlay, { passive: true });
 
-      // 2. Browser Autoplay Fallback:
-      // Modern browsers may block unprompted audio on initial page load until the user interacts.
-      // Register global interaction listeners to start audio on first click, scroll, touch, or key.
-      const handleFirstInteraction = () => {
-        playCurrentAudio();
-        cleanupListeners();
-      };
+    return () => {
+      window.removeEventListener('pointerdown', unlockAndPlay);
+      window.removeEventListener('click', unlockAndPlay);
+      window.removeEventListener('touchstart', unlockAndPlay);
+      window.removeEventListener('keydown', unlockAndPlay);
+    };
+  }, [soundOn, ytReady, playerMode]);
 
-      const cleanupListeners = () => {
-        window.removeEventListener('click', handleFirstInteraction);
-        window.removeEventListener('scroll', handleFirstInteraction);
-        window.removeEventListener('keydown', handleFirstInteraction);
-        window.removeEventListener('touchstart', handleFirstInteraction);
-      };
+  // 5. Handle soundOn toggle from Navbar
+  useEffect(() => {
+    if (!soundOn) {
+      setIsActuallyPlaying(false);
+      setNeedsGesture(false);
 
-      window.addEventListener('click', handleFirstInteraction, { once: true });
-      window.addEventListener('scroll', handleFirstInteraction, { once: true });
-      window.addEventListener('keydown', handleFirstInteraction, { once: true });
-      window.addEventListener('touchstart', handleFirstInteraction, { once: true });
-
-      return () => {
-        cleanupListeners();
-      };
-    } else {
-      // Stop Playing when soundOn is toggled OFF
       if (playerMode === 'html5' && html5AudioRef.current) {
         html5AudioRef.current.pause();
       } else if (playerMode === 'ambient') {
@@ -268,19 +297,57 @@ export default function MusicPlayer({ soundOn, setSoundOn }) {
           ytPlayerRef.current.pauseVideo();
         } catch (e) {}
       }
+    } else {
+      if (ytPlayerRef.current && typeof ytPlayerRef.current.playVideo === 'function') {
+        try {
+          ytPlayerRef.current.unMute();
+          ytPlayerRef.current.setVolume(60);
+          ytPlayerRef.current.playVideo();
+        } catch (e) {}
+      } else if (playerMode === 'html5' && html5AudioRef.current) {
+        html5AudioRef.current.play().catch(() => setNeedsGesture(true));
+      } else if (playerMode === 'ambient') {
+        startAmbientLoop();
+      }
     }
-  }, [soundOn, playerMode, ytReady]);
+  }, [soundOn]);
 
   return (
-    /* 
-      Invisible background player container.
-      Rendered in-viewport with valid dimensions so browsers do not suspend playback.
-      Zero visual clutter.
-    */
-    <div 
-      ref={iframeContainerRef}
-      className="fixed bottom-0 left-0 w-[240px] h-[135px] pointer-events-none opacity-[0.01] -z-50 overflow-hidden"
-      aria-hidden="true"
-    />
+    <>
+      {/* 
+        Sleek prompt shown ONLY if the browser's security blocks unprompted autoplay on fresh visit.
+        Disappears automatically the moment the user clicks anywhere on the site.
+      */}
+      {needsGesture && soundOn && (
+        <div 
+          onClick={() => {
+            if (ytPlayerRef.current) {
+              try {
+                ytPlayerRef.current.unMute();
+                ytPlayerRef.current.setVolume(60);
+                ytPlayerRef.current.playVideo();
+              } catch (e) {}
+            }
+            setNeedsGesture(false);
+          }}
+          className="fixed top-20 right-4 sm:right-6 z-50 animate-bounce flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/95 border border-cyan-400/60 text-xs text-cyan-200 shadow-[0_0_20px_rgba(0,242,254,0.4)] backdrop-blur-xl cursor-pointer hover:border-cyan-300 transition-all select-none"
+          title="Click anywhere on the page to start background music"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin-slow" />
+          <span>Click anywhere to start music (Justin Bieber - Flatline)</span>
+        </div>
+      )}
+
+      {/* 
+        Invisible background player container.
+        Rendered in-viewport with valid dimensions so browsers do not suspend playback.
+        Zero visual clutter.
+      */}
+      <div 
+        ref={iframeContainerRef}
+        className="fixed bottom-0 left-0 w-[240px] h-[135px] pointer-events-none opacity-[0.01] -z-50 overflow-hidden"
+        aria-hidden="true"
+      />
+    </>
   );
 }
