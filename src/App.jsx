@@ -12,6 +12,7 @@ import CurrentFocus from './components/CurrentFocus';
 import PersonalSide from './components/PersonalSide';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import MusicPlayer from './components/MusicPlayer';
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('hero');
@@ -55,6 +56,9 @@ export default function App() {
         <PersonalSide />
         <Contact />
       </main>
+
+      {/* Background Music Player */}
+      <MusicPlayer />
 
       {/* Footer */}
       <Footer />
