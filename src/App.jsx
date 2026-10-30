@@ -16,6 +16,7 @@ import MusicPlayer from './components/MusicPlayer';
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('hero');
+  const [soundOn, setSoundOn] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,7 +42,7 @@ export default function App() {
       <CustomCursor />
 
       {/* Glassmorphic Navbar */}
-      <Navbar activeSection={activeSection} />
+      <Navbar activeSection={activeSection} soundOn={soundOn} setSoundOn={setSoundOn} />
 
       {/* Main Content Sections */}
       <main>
@@ -57,8 +58,8 @@ export default function App() {
         <Contact />
       </main>
 
-      {/* Background Music Player */}
-      <MusicPlayer />
+      {/* Background Music Engine (Invisible - controlled via Navbar sound button) */}
+      <MusicPlayer soundOn={soundOn} setSoundOn={setSoundOn} />
 
       {/* Footer */}
       <Footer />

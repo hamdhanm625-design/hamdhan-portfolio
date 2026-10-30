@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Menu, X, Terminal, Sparkles } from 'lucide-react';
-import { toggleMute, playHoverSound, playClickSound } from './SoundEngine';
+import { setMutedState, playHoverSound, playClickSound } from './SoundEngine';
 
-export default function Navbar({ activeSection }) {
+export default function Navbar({ activeSection, soundOn, setSoundOn }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [muted, setMuted] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,10 +14,13 @@ export default function Navbar({ activeSection }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleMuteToggle = () => {
-    const isNowMuted = toggleMute();
-    setMuted(isNowMuted);
-    if (!isNowMuted) playClickSound();
+  const handleSoundToggle = () => {
+    const nextState = !soundOn;
+    setSoundOn(nextState);
+    setMutedState(!nextState);
+    if (nextState) {
+      playClickSound();
+    }
   };
 
   const navLinks = [
@@ -92,14 +94,30 @@ export default function Navbar({ activeSection }) {
             <span className="text-slate-300 font-mono">Learning & Building</span>
           </div>
 
-          {/* Sound Toggle */}
+          {/* Sound & Music Toggle */}
           <button
-            onClick={handleMuteToggle}
+            onClick={handleSoundToggle}
             onMouseEnter={playHoverSound}
-            title={muted ? 'Unmute Audio' : 'Mute Audio'}
-            className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:border-cyan-500/40 transition-all"
+            title={soundOn ? 'Music & Sound: ON (Justin Bieber - Flatline) • Click to Stop' : 'Music & Sound: OFF • Click to Play'}
+            className={`p-2 rounded-xl transition-all flex items-center gap-1.5 ${
+              soundOn
+                ? 'bg-cyan-500/15 border border-cyan-400/80 text-cyan-300 shadow-[0_0_15px_rgba(0,242,254,0.35)]'
+                : 'bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:border-cyan-500/40'
+            }`}
+            aria-label={soundOn ? 'Mute Music and Sound' : 'Play Music and Sound'}
           >
-            {muted ? <VolumeX className="w-4 h-4 text-slate-500" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
+            {soundOn ? (
+              <>
+                <Volume2 className="w-4 h-4 text-cyan-400 animate-pulse" />
+                <div className="flex items-end gap-0.5 h-3">
+                  <span className="w-0.5 h-2 rounded-full bg-cyan-400 animate-bar-1" />
+                  <span className="w-0.5 h-3 rounded-full bg-cyan-300 animate-bar-2" />
+                  <span className="w-0.5 h-1.5 rounded-full bg-cyan-400 animate-bar-3" />
+                </div>
+              </>
+            ) : (
+              <VolumeX className="w-4 h-4 text-slate-500" />
+            )}
           </button>
 
           {/* Mobile Menu Toggle */}

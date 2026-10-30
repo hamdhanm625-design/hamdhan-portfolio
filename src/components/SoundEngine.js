@@ -8,6 +8,11 @@ export const toggleMute = () => {
   return isMuted;
 };
 
+export const setMutedState = (val) => {
+  isMuted = val;
+  return isMuted;
+};
+
 export const getMutedState = () => isMuted;
 
 const initAudio = () => {
