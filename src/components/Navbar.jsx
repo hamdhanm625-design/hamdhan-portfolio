@@ -14,7 +14,10 @@ export default function Navbar({ activeSection, soundOn, setSoundOn }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSoundToggle = () => {
+  const handleSoundToggle = (e) => {
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
     const nextState = !soundOn;
     setSoundOn(nextState);
     setMutedState(!nextState);
